@@ -1,24 +1,16 @@
 import json
 import os
-from models import Transaction
 
-DATA_FILE = "data.json"
+# 파일 이름을 인자로 받아 저장하고 불러오도록 변경합니다.
+def save_data(filename, data):
+    with open(filename, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
 
-# 데이터를 파일에 저장하는 함수
-def save_data(transactions: list[Transaction]):
-    with open(DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(transactions, f, ensure_ascii=False, indent=4)
-
-# 파일에서 데이터를 불러오는 함수 (제너레이터 사용)
-def load_data():
-    if not os.path.exists(DATA_FILE):
+def load_data(filename):
+    if not os.path.exists(filename):
         return []
-    
-    with open(DATA_FILE, "r", encoding="utf-8") as f:
-        data = json.load(f)
-        for item in data:
-            yield item  # 데이터를 하나씩 꺼내주는 제너레이터 방식!
-
-# 제너레이터로 가져온 데이터를 리스트로 변환
-def get_all_transactions() -> list[Transaction]:
-    return list(load_data())
+    try:
+        with open(filename, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except json.JSONDecodeError:
+        return []

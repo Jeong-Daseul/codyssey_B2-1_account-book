@@ -1,42 +1,34 @@
-from models import Transaction
-from storage import save_data, get_all_transactions
-from utils import logger
+from storage import save_data, load_data
+from datetime import datetime
 
-# 1. 새로운 거래를 추가하는 기능
-@logger
-def add_transaction(date: str, type: str, category: str, amount: int, memo: str):
-    transactions = get_all_transactions()
+TRANSACTIONS_FILE = 'transactions.json'
+
+def add_transaction(date, type, category, amount, memo):
+    transactions = load_data(TRANSACTIONS_FILE)
     
-    # 새로운 ID 생성 (마지막 ID + 1)
-    new_id = len(transactions) + 1 if transactions else 1
-    
-    new_item: Transaction = {
+    # 새 거래 생성 (ID는 리스트 길이에 1을 더함)
+    new_id = len(transactions) + 1
+    new_item = {
         "id": new_id,
         "date": date,
         "type": type,
         "category": category,
-        "amount": amount,
+        "amount": int(amount),
         "memo": memo
     }
     
     transactions.append(new_item)
-    save_data(transactions)
-    print(f"✅ [{category}] 내역이 성공적으로 저장되었습니다!")
+    save_data(TRANSACTIONS_FILE, transactions)
+    return new_id
 
-# 2. 전체 요약(수입/지출 합계)을 계산하는 기능
-@logger
-def get_summary():
-    transactions = get_all_transactions()
+def get_transactions(limit=None):
+    transactions = load_data(TRANSACTIONS_FILE)
     
-    total_income = sum(t['amount'] for t in transactions if t['type'] == 'income')
-    total_expense = sum(t['amount'] for t in transactions if t['type'] == 'expense')
-    balance = total_income - total_expense
+    # 날짜 기준 최신순 정렬 (내림차순)
+    # 날짜 문자열(YYYY-MM-DD)을 비교하여 정렬합니다.
+    sorted_list = sorted(transactions, key=lambda x: x['date'], reverse=True)
     
-    return total_income, total_expense, balance
-
-# 3. 카테고리로 검색하는 기능
-@logger
-def search_by_category(category: str):
-    transactions = get_all_transactions()
-    results = [t for t in transactions if category in t['category']]
-    return results
+    # limit이 있으면 그 개수만큼만 자르기
+    if limit:
+        return sorted_list[:limit]
+    return sorted_list
