@@ -3,43 +3,47 @@ import os
 from .models import Transaction
 
 class BudgetRepository:
-    def __init__(self, filename="data.json"):
+    def __init__(self, filename="data.jsonl"):
         self.filename = filename
-        self.transactions = self._load_data()
 
-    def _load_data(self):
-        if not os.path.exists(self.filename):
-            return []
-        with open(self.filename, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            return [Transaction(**item) for item in data]
-
-    def save(self):
-        with open(self.filename, "w", encoding="utf-8") as f:
-            json.dump([t.to_dict() for t in self.transactions], f, ensure_ascii=False, indent=4)
-
-    def add(self, transaction):
-        self.transactions.append(transaction)
-        self.save()
+    def save_all(self, transactions):
+        with open(self.filename, 'w', encoding='utf-8') as f:
+            for tx in transactions:
+                f.write(json.dumps(tx.to_dict(), ensure_ascii=False) + "\n")
 
     def get_all(self):
-        return self.transactions
+        if not os.path.exists(self.filename):
+            return []
+        transactions = []
+        with open(self.filename, 'r', encoding='utf-8') as f:
+            for line in f:
+                data = json.loads(line)
+                transactions.append(Transaction(**data))
+        return transactions
 
-    def find_by_id(self, tx_id):
-        return next((t for t in self.transactions if t.id == tx_id), None)
+    def add(self, transaction):
+        txs = self.get_all()
+        txs.append(transaction)
+        self.save_all(txs)
 
-    def delete(self, tx_id):
-        self.transactions = [t for t in self.transactions if t.id != tx_id]
-        self.save()
+    def update(self, tid, amount, memo, category):
+        txs = self.get_all()
+        found = False
+        for t in txs:
+            if t.id == tid:
+                t.amount = amount
+                t.memo = memo
+                t.category = category
+                found = True
+                break
+        if found:
+            self.save_all(txs)
+        return found
 
-    def search(self, keyword):
-        return [t for t in self.transactions if keyword in t.memo or keyword in t.category]
-
-    def update(self, tx_id, updated_data):
-        tx = self.find_by_id(tx_id)
-        if tx:
-            for key, value in updated_data.items():
-                setattr(tx, key, value)
-            self.save()
+    def delete(self, tid):
+        txs = self.get_all()
+        new_txs = [t for t in txs if t.id != tid]
+        if len(txs) != len(new_txs):
+            self.save_all(new_txs)
             return True
         return False
