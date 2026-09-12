@@ -1,82 +1,52 @@
-from storage import save_data, load_data
-from datetime import datetime
+from storage import load_transactions, save_transactions, save_budget, load_budget
 
-TRANSACTIONS_FILE = 'transactions.json'
-
-def add_transaction(date, type, category, amount, memo):
-    transactions = load_data(TRANSACTIONS_FILE)
+def add_transaction(date, t_type, category, amount, memo):
+    """새로운 거래를 추가합니다."""
+    transactions = load_transactions()
     
     # 새 거래 생성 (ID는 리스트 길이에 1을 더함)
     new_id = len(transactions) + 1
     new_item = {
         "id": new_id,
         "date": date,
-        "type": type,
+        "type": t_type,
         "category": category,
         "amount": int(amount),
         "memo": memo
     }
     
     transactions.append(new_item)
-    save_data(TRANSACTIONS_FILE, transactions)
+    save_transactions(transactions)
     return new_id
 
 def get_transactions(limit=None):
-    transactions = load_data(TRANSACTIONS_FILE)
+    """모든 거래 목록을 최신순으로 가져옵니다."""
+    transactions = load_transactions()
     
     # 날짜 기준 최신순 정렬 (내림차순)
-    # 날짜 문자열(YYYY-MM-DD)을 비교하여 정렬합니다.
     sorted_list = sorted(transactions, key=lambda x: x['date'], reverse=True)
     
-    # limit이 있으면 그 개수만큼만 자르기
     if limit:
         return sorted_list[:limit]
     return sorted_list
 
-# logic.py에 추가
-
-def get_monthly_summary(year, month):
-    transactions = load_data(TRANSACTIONS_FILE)
-    total_income = 0
-    total_expense = 0
-    
-    # 입력받은 월을 "01", "02" 형태로 맞춥니다.
-    target_month = f"{year}-{month.zfill(2)}" 
-    
-    for item in transactions:
-        # 날짜(YYYY-MM-DD)가 "YYYY-MM"으로 시작하는지 확인
-        if item['date'].startswith(target_month):
-            if item['type'] == '수입':
-                total_income += item['amount']
-            elif item['type'] == '지출':
-                total_expense += item['amount']
-                
-    return {
-        "income": total_income,
-        "expense": total_expense,
-        "balance": total_income - total_expense
-    }
-
 def search_transactions(category=None, t_type=None, q=None):
-    transactions = load_data(TRANSACTIONS_FILE)
+    """조건에 맞는 거래를 검색합니다."""
+    transactions = load_transactions()
     results = transactions
     
-    # 카테고리 필터
     if category:
         results = [item for item in results if item['category'] == category]
-    
-    # 타입 필터 (수입/지출)
     if t_type:
         results = [item for item in results if item['type'] == t_type]
-        
-    # 메모 검색어 필터
     if q:
         results = [item for item in results if q.lower() in item['memo'].lower()]
         
     return results
 
 def get_monthly_summary(year, month):
-    transactions = load_data(TRANSACTIONS_FILE)
+    """특정 연도/월의 수입, 지출 요약을 계산합니다."""
+    transactions = load_transactions()
     total_income = 0
     total_expense = 0
     
@@ -94,4 +64,24 @@ def get_monthly_summary(year, month):
         "income": total_income,
         "expense": total_expense,
         "balance": total_income - total_expense
+    }
+
+def set_budget(amount):
+    """예산을 설정합니다."""
+    save_budget(amount)
+    return f"새로운 예산 {amount:,}원이 설정되었습니다."
+
+def get_budget_status():
+    """현재 예산 대비 지출 현황을 계산합니다."""
+    budget = load_budget()
+    transactions = load_transactions()
+    
+    # 이번 달 지출 합계 계산 (지출만 합산)
+    total_spending = sum(t['amount'] for t in transactions if t['type'] == '지출')
+    
+    remaining = budget - total_spending
+    return {
+        "budget": budget,
+        "total_spending": total_spending,
+        "remaining": remaining
     }
