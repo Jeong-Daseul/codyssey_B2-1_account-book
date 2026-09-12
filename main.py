@@ -3,7 +3,8 @@ from logic import (
     add_transaction, get_transactions, search_transactions, 
     get_monthly_summary, set_budget, get_budget_status,
     get_category_stats,
-    delete_transaction  # 추가
+    delete_transaction,
+    update_transaction  # 추가
 )
 
 def main():
@@ -15,7 +16,8 @@ def main():
         print("4. 월별 요약")
         print("5. 예산 설정/현황")
         print("6. 카테고리별 통계")
-        print("7. 거래 삭제")  # 추가
+        print("7. 거래 삭제")
+        print("8. 거래 수정")  # 추가
         print("0. 종료")
         choice = input("선택: ")
 
@@ -105,6 +107,37 @@ def main():
                 print(message)
             except ValueError:
                 print("⚠️ 숫자로 된 ID를 입력해 주세요.")
+
+        elif choice == '8':
+            print("\n--- 거래 내역 수정 ---")
+            recent_list = get_transactions(limit=5)
+            if not recent_list:
+                print("수정할 내역이 없습니다.")
+                continue
+            
+            print("최근 내역 (최대 5건):")
+            for t in recent_list:
+                print(f"[{t['id']}] {t['date']} | {t['type']} | {t['category']} | {t['amount']:,}원 | {t['memo']}")
+            
+            try:
+                target_id = int(input("\n수정할 거래의 ID를 입력하세요: "))
+                
+                print("\n새로운 정보를 입력하세요 (변경하지 않으려면 엔터)")
+                new_date = input("새 날짜 (YYYY-MM-DD): ") or None
+                new_type = input("새 타입 (수입/지출): ") or None
+                new_cat = input("새 카테고리: ") or None
+                new_amt_input = input("새 금액: ")
+                new_amt = int(new_amt_input) if new_amt_input else None
+                new_memo = input("새 메모: ") or None
+                
+                success, message = update_transaction(
+                    target_id, date=new_date, t_type=new_type, 
+                    category=new_cat, amount=new_amt, memo=new_memo
+                )
+                print(message)
+                
+            except ValueError:
+                print("⚠️ 올바른 숫자를 입력해 주세요.")
 
 
 

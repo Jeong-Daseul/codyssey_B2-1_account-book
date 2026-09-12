@@ -114,3 +114,28 @@ def delete_transaction(t_id):
     
     save_transactions(new_transactions)
     return True, f"✅ ID {t_id} 내역이 성공적으로 삭제되었습니다."
+
+
+def update_transaction(t_id, date=None, t_type=None, category=None, amount=None, memo=None):
+    """
+    특정 ID의 거래 내역을 수정합니다. 
+    값이 전달된 항목만 수정하고, None인 항목은 기존 값을 유지합니다.
+    """
+    transactions = load_transactions()
+    is_found = False
+    
+    for t in transactions:
+        if t['id'] == t_id:
+            if date: t['date'] = date
+            if t_type: t['type'] = t_type
+            if category: t['category'] = category
+            if amount is not None: t['amount'] = amount
+            if memo is not None: t['memo'] = memo
+            is_found = True
+            break
+    
+    if is_found:
+        save_transactions(transactions)
+        return True, f"✅ [ID: {t_id}] 내역이 성공적으로 수정되었습니다."
+    else:
+        return False, f"❌ [ID: {t_id}] 내역을 찾을 수 없습니다."
