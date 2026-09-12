@@ -85,3 +85,19 @@ def get_budget_status():
         "total_spending": total_spending,
         "remaining": remaining
     }
+
+def get_category_stats():
+    """카테고리별 지출 합계를 계산합니다."""
+    transactions = load_transactions()
+    stats = {}
+    
+    for t in transactions:
+        if t['type'] == '지출':
+            cat = t['category']
+            amount = t['amount']
+            # 카테고리가 이미 있으면 더하고, 없으면 새로 생성
+            stats[cat] = stats.get(cat, 0) + amount
+            
+    # 금액이 높은 순서대로 정렬
+    sorted_stats = dict(sorted(stats.items(), key=lambda x: x[1], reverse=True))
+    return sorted_stats
