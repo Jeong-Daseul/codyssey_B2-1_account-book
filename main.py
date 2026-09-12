@@ -2,7 +2,8 @@
 from logic import (
     add_transaction, get_transactions, search_transactions, 
     get_monthly_summary, set_budget, get_budget_status,
-    get_category_stats  # 6번 기능을 위해 추가됨!
+    get_category_stats,
+    delete_transaction  # 추가
 )
 
 def main():
@@ -14,6 +15,7 @@ def main():
         print("4. 월별 요약")
         print("5. 예산 설정/현황")
         print("6. 카테고리별 통계")
+        print("7. 거래 삭제")  # 추가
         print("0. 종료")
         choice = input("선택: ")
 
@@ -75,6 +77,36 @@ def main():
             else:
                 for cat, total in stats.items():
                     print(f"[{cat}] {total:,}원")
+
+
+        elif choice == '7':
+            print("\n--- 거래 내역 삭제 ---")
+
+            # 1. 최근 내역 5개를 먼저 보여줌 (ID 확인용)
+            recent_list = get_transactions(limit=5)
+            if not recent_list:
+                print("삭제할 내역이 없습니다.")
+                continue
+            
+            print("최근 내역 (최대 5건):")
+
+            for t in recent_list:
+                print(f"[{t['id']}] {t['date']} | {t['category']} | {t['amount']:,}원 | {t['memo']}")
+
+            
+            try:
+                # 2. 보여준 목록을 보고 ID 입력받기
+                target_id = int(input("\n삭제할 거래의 ID를 입력하세요 (취소: 0): "))
+                if target_id == 0:
+                    print("삭제가 취소되었습니다.")
+                    continue
+                    
+                success, message = delete_transaction(target_id)
+                print(message)
+            except ValueError:
+                print("⚠️ 숫자로 된 ID를 입력해 주세요.")
+
+
 
         elif choice == '0': # 메뉴판에 맞춰 '0'으로 수정했습니다.
             print("프로그램을 종료합니다. 이용해 주셔서 감사합니다!")

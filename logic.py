@@ -101,3 +101,16 @@ def get_category_stats():
     # 금액이 높은 순서대로 정렬
     sorted_stats = dict(sorted(stats.items(), key=lambda x: x[1], reverse=True))
     return sorted_stats
+
+def delete_transaction(t_id):
+    """ID를 기반으로 거래 내역을 삭제합니다."""
+    transactions = load_transactions()
+    
+    # 입력받은 ID와 일치하지 않는 것들만 남깁니다 (필터링)
+    new_transactions = [t for t in transactions if t['id'] != t_id]
+    
+    if len(new_transactions) == len(transactions):
+        return False, f"❌ ID {t_id}를 찾을 수 없습니다."
+    
+    save_transactions(new_transactions)
+    return True, f"✅ ID {t_id} 내역이 성공적으로 삭제되었습니다."
