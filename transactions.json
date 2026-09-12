@@ -6,5 +6,45 @@
         "category": "간식",
         "amount": 14000,
         "memo": "소금빵"
+    },
+    {
+        "id": 2,
+        "date": "2026-09-12",
+        "type": "지출",
+        "category": "교통비",
+        "amount": 50000,
+        "memo": "버스/지하철"
+    },
+    {
+        "id": 3,
+        "date": "2026-09-01",
+        "type": "수입",
+        "category": "급여",
+        "amount": 1000000,
+        "memo": "급여"
+    },
+    {
+        "id": 4,
+        "date": "2026-09-01",
+        "type": "지출",
+        "category": "간식",
+        "amount": 5000,
+        "memo": "커피"
+    },
+    {
+        "id": 5,
+        "date": "2026-09-12",
+        "type": "지출",
+        "category": "간식",
+        "amount": 5000,
+        "memo": "커피"
+    },
+    {
+        "id": 6,
+        "date": "2026-09-11",
+        "type": "지출",
+        "category": "식비",
+        "amount": 15000,
+        "memo": "점심"
     }
 ]

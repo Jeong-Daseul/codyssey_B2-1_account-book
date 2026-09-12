@@ -20,6 +20,7 @@ def main():
         print("7. 거래 삭제")
         print("8. 거래 수정")  # 추가
         print("9. 내역 내보내기 (CSV)")
+        print("10. 지출 통계 시각화") #추가
         print("0. 종료")
         choice = input("선택: ")
 
@@ -151,6 +152,30 @@ def main():
                     filename += '.csv'
                 success, message = export_to_csv(filename)
             print(message)
+
+            
+        elif choice == '10':
+            print("\n--- 📊 카테고리별 지출 비중 ---")
+            stats = get_category_stats()
+            
+            if not stats:
+                print("데이터가 없습니다.")
+                continue
+            
+            total_expense = sum(stats.values())
+            print(f"총 지출: {total_expense:,}원")
+            print("-" * 30)
+            
+            for cat, amount in stats.items():
+                # 비중 계산 (백분율)
+                percentage = (amount / total_expense) * 100
+                # 그래프 길이 결정 (최대 20칸)
+                bar_length = int(percentage / 5) 
+                bar = "■" * bar_length
+                print(f"{cat:<10} | {bar} {percentage:>5.1f}% ({amount:,}원)")
+            print("-" * 30)
+
+
 
         elif choice == '0': # 메뉴판에 맞춰 '0'으로 수정했습니다.
             print("프로그램을 종료합니다. 이용해 주셔서 감사합니다!")
