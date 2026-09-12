@@ -1,0 +1,10 @@
+[
+    {
+        "id": 1,
+        "date": "2026-09-12",
+        "type": "expense",
+        "category": "식비",
+        "amount": 14000,
+        "memo": "소금빵"
+    }
+]
