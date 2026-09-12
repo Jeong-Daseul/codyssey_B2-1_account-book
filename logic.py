@@ -1,3 +1,4 @@
+import csv
 from storage import load_transactions, save_transactions, save_budget, load_budget
 
 def add_transaction(date, t_type, category, amount, memo):
@@ -139,3 +140,23 @@ def update_transaction(t_id, date=None, t_type=None, category=None, amount=None,
         return True, f"✅ [ID: {t_id}] 내역이 성공적으로 수정되었습니다."
     else:
         return False, f"❌ [ID: {t_id}] 내역을 찾을 수 없습니다."
+
+
+def export_to_csv(filename="account_book.csv"):
+    transactions = load_transactions()
+    if not transactions:
+        return False, "내보낼 데이터가 없습니다."
+    
+    try:
+        # utf-8-sig는 엑셀에서 한글이 깨지지 않게 해주는 인코딩 방식입니다.
+        with open(filename, 'w', newline='', encoding='utf-8-sig') as f:
+            # 데이터의 키(id, date, type...)를 헤더로 사용합니다.
+            fieldnames = transactions[0].keys()
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            
+            writer.writeheader() # 첫 줄에 제목 쓰기
+            writer.writerows(transactions) # 데이터 쓰기
+            
+        return True, f"✅ {filename} 파일로 저장되었습니다!"
+    except Exception as e:
+        return False, f"❌ 오류 발생: {str(e)}"

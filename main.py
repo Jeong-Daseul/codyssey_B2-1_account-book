@@ -4,7 +4,8 @@ from logic import (
     get_monthly_summary, set_budget, get_budget_status,
     get_category_stats,
     delete_transaction,
-    update_transaction  # 추가
+    update_transaction,
+    export_to_csv,  # 추가
 )
 
 def main():
@@ -18,6 +19,7 @@ def main():
         print("6. 카테고리별 통계")
         print("7. 거래 삭제")
         print("8. 거래 수정")  # 추가
+        print("9. 내역 내보내기 (CSV)")
         print("0. 종료")
         choice = input("선택: ")
 
@@ -139,7 +141,16 @@ def main():
             except ValueError:
                 print("⚠️ 올바른 숫자를 입력해 주세요.")
 
-
+        elif choice == '9':
+            print("\n--- 데이터 내보내기 ---")
+            filename = input("저장할 파일명을 입력하세요 (기본: account_book.csv): ")
+            if not filename:
+                success, message = export_to_csv()
+            else:
+                if not filename.endswith('.csv'):
+                    filename += '.csv'
+                success, message = export_to_csv(filename)
+            print(message)
 
         elif choice == '0': # 메뉴판에 맞춰 '0'으로 수정했습니다.
             print("프로그램을 종료합니다. 이용해 주셔서 감사합니다!")
